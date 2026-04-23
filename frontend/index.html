@@ -1,21 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kolkata Pathfinder</title>
+  <title>Dijkstra Navigator</title>
 
   <link rel="stylesheet"
     href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
   <style>
-    #map { height: 90vh; }
-    button { margin: 10px; padding: 10px; }
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px;
+      margin: 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
 
-<h2>Kolkata Shortest Path</h2>
+<h2>🚀 Dijkstra Navigator</h2>
+<p>Click on map to select start and end</p>
+
 <button onclick="findPath()">Find Path</button>
+<button onclick="resetMap()">Reset</button>
 
 <div id="map"></div>
 
@@ -27,41 +43,75 @@
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
     .addTo(map);
 
-  const coords = {
-    A: [22.5726, 88.3639],
-    B: [22.5750, 88.3700],
-    C: [22.5800, 88.3600],
-    D: [22.5850, 88.3650]
-  };
+  let startCoords = null;
+  let endCoords = null;
 
-  let polyline;
+  let startMarker = null;
+  let endMarker = null;
+  let polyline = null;
+
+  // Click to select points
+  map.on('click', function(e) {
+    const { lat, lng } = e.latlng;
+
+    if (!startCoords) {
+      startCoords = [lat, lng];
+      startMarker = L.marker(startCoords).addTo(map)
+        .bindPopup("Start").openPopup();
+    } else if (!endCoords) {
+      endCoords = [lat, lng];
+      endMarker = L.marker(endCoords).addTo(map)
+        .bindPopup("End").openPopup();
+    }
+  });
 
   function findPath() {
+    if (!startCoords || !endCoords) {
+      alert("Select start and end points!");
+      return;
+    }
+
     fetch("http://localhost:5000/shortest-path", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        start: "A",
-        end: "D"
+        start: startCoords,
+        end: endCoords
       })
     })
     .then(res => res.json())
     .then(data => {
       drawPath(data.path);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error connecting to backend");
     });
   }
 
   function drawPath(path) {
     if (polyline) map.removeLayer(polyline);
 
-    let latlngs = path.map(node => coords[node]);
-
-    polyline = L.polyline(latlngs, { color: 'blue' })
-      .addTo(map);
+    polyline = L.polyline(path, {
+      color: 'blue',
+      weight: 5
+    }).addTo(map);
 
     map.fitBounds(polyline.getBounds());
+  }
+
+  function resetMap() {
+    if (startMarker) map.removeLayer(startMarker);
+    if (endMarker) map.removeLayer(endMarker);
+    if (polyline) map.removeLayer(polyline);
+
+    startCoords = null;
+    endCoords = null;
+    startMarker = null;
+    endMarker = null;
+    polyline = null;
   }
 </script>
 

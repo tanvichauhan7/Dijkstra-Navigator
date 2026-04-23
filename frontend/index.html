@@ -29,11 +29,12 @@
 <body>
 
 <h2>🚀 Dijkstra Navigator</h2>
+<p>Interactive Shortest Path Visualizer using Graph Algorithms</p>
 <p>Click on map to select Start & End points</p>
 <p id="distanceText"></p>
-<button onclick="findPath()">Find Path</button>
-<button onclick="resetMap()">Reset</button>
 
+<button onclick="resetMap()">Reset</button>
+<button id="routeBtn" onclick="findPath()">Find Path</button>
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -52,36 +53,38 @@
   let polyline = null;
 
   // Click to select points
-  map.on('click', function(e) {
-    const { lat, lng } = e.latlng;
+map.on('click', function(e) {
+  const { lat, lng } = e.latlng;
 
-    if (!startCoords) {
-      startCoords = [lat, lng];
-      startMarker = L.marker(startCoords).addTo(map)
-        .bindPopup("Start").openPopup();
-    } else if (!endCoords) {
-      endCoords = [lat, lng];
-      endMarker = L.marker(endCoords).addTo(map)
-        .bindPopup("End").openPopup();
-    }
-  });
+  if (!startCoords) {
+    startCoords = [lat, lng];
+    startMarker = L.marker(startCoords).addTo(map)
+      .bindPopup("📍 Start Location")
+      .openPopup();
+  } else if (!endCoords) {
+    endCoords = [lat, lng];
+    endMarker = L.marker(endCoords).addTo(map)
+      .bindPopup("🏁 End Location")
+      .openPopup();
+  }
+});
 
-  function findPath() {
-    if (!startCoords || !endCoords) {
-      alert("⚠️ Please select both points!");
-      return;
-    }
+function findPath() {
+  if (!startCoords || !endCoords) {
+    alert("⚠️ Please select both points!");
+    return;
+  }
 
-    fetch("http://127.0.0.1:5000/shortest-path", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        start: startCoords,
-        end: endCoords
-      })
+  fetch("http://127.0.0.1:5000/shortest-path", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      start: startCoords,
+      end: endCoords
     })
+  })
     .then(res => {
       if (!res.ok) throw new Error("Server error");
       return res.json();

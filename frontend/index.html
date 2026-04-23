@@ -30,7 +30,7 @@
 
 <h2>🚀 Dijkstra Navigator</h2>
 <p>Click on map to select Start & End points</p>
-
+<p id="distanceText"></p>
 <button onclick="findPath()">Find Path</button>
 <button onclick="resetMap()">Reset</button>
 
@@ -88,6 +88,7 @@
     })
     .then(data => {
       drawPath(data.path);
+      document.getElementById("distanceText").textContent = `Distance: ${data.distance} km`;
     })
     .catch(err => {
       console.error("🔥 ERROR:", err);

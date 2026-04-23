@@ -18,10 +18,14 @@ app.post("/shortest-path", (req, res) => {
     return res.status(400).json({ error: "Invalid input" });
   }
 
-  // Straight line path
+  // calculate distance
+  const dx = start[0] - end[0];
+  const dy = start[1] - end[1];
+  const distance = Math.sqrt(dx * dx + dy * dy) * 111; // approx km
+
   const path = [start, end];
 
-  res.json({ path });
+  res.json({ path, distance: distance.toFixed(2) });
 });
 
 app.listen(5000, () => {

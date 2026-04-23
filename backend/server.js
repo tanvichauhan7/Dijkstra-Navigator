@@ -5,7 +5,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Simple Dijkstra-style placeholder (direct path)
+// Test route
+app.get("/", (req, res) => {
+  res.send("Backend working ✅");
+});
+
+// Main API
 app.post("/shortest-path", (req, res) => {
   const { start, end } = req.body;
 
@@ -13,12 +18,12 @@ app.post("/shortest-path", (req, res) => {
     return res.status(400).json({ error: "Invalid input" });
   }
 
-  // Straight line path (for now)
+  // Straight line path
   const path = [start, end];
 
   res.json({ path });
 });
 
 app.listen(5000, () => {
-  console.log("🚀 Server running at http://localhost:5000");
+  console.log("🚀 Server running at http://127.0.0.1:5000");
 });

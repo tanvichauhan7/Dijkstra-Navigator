@@ -13,13 +13,14 @@
     }
 
     #map {
-      height: 80vh;
+      height: 85vh;
       width: 100%;
     }
 
     button {
-      padding: 10px;
+      padding: 10px 20px;
       margin: 10px;
+      font-size: 16px;
       cursor: pointer;
     }
   </style>
@@ -28,7 +29,7 @@
 <body>
 
 <h2>🚀 Dijkstra Navigator</h2>
-<p>Click on map to select start and end</p>
+<p>Click on map to select Start & End points</p>
 
 <button onclick="findPath()">Find Path</button>
 <button onclick="resetMap()">Reset</button>
@@ -67,11 +68,11 @@
 
   function findPath() {
     if (!startCoords || !endCoords) {
-      alert("Select start and end points!");
+      alert("⚠️ Please select both points!");
       return;
     }
 
-    fetch("http://localhost:5000/shortest-path", {
+    fetch("http://127.0.0.1:5000/shortest-path", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -81,13 +82,16 @@
         end: endCoords
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Server error");
+      return res.json();
+    })
     .then(data => {
       drawPath(data.path);
     })
     .catch(err => {
-      console.error(err);
-      alert("Error connecting to backend");
+      console.error("🔥 ERROR:", err);
+      alert("Backend not connected. Check server.");
     });
   }
 
